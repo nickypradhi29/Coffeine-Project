@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
  
 /**
+ * @property int $user_id
  * @property float|null $total_harga
  */
 class Pesanan extends Model
