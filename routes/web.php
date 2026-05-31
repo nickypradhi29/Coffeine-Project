@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 // ─── Member Controllers ────────────────────────────────────────────────────
@@ -19,13 +20,11 @@ use App\Http\Controllers\Admin\LaporanController;
 // ===========================================================================
 // BREEZE DEFAULT ROUTES (jangan hapus)
 // ===========================================================================
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+Route::get('/', [\App\Http\Controllers\WelcomeController::class, 'index'])->name('home');
 
 // Redirect /dashboard sesuai role
 Route::get('/dashboard', function () {
-    $role = auth()->user()->role;
+    $role = Auth::user()->role;
     return match($role) {
         'admin'  => redirect()->route('admin.dashboard'),
         'kasir'  => redirect()->route('kasir.dashboard'),
