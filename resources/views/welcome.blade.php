@@ -61,14 +61,16 @@
         .hero-right { position: relative; overflow: hidden; }
         .hero-img-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; height: 100%; min-height: 560px; }
         .hero-img {
-            overflow: hidden; display: flex; align-items: center; justify-content: center;
-            background-size: cover; background-position: center;
+            overflow: hidden;
+            min-height: 280px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
         .hero-img-1 { background-color: #3D2010; }
         .hero-img-2 { background-color: #5A3020; }
         .hero-img-3 { background-color: #4A2818; }
         .hero-img-4 { background-color: #6B3A22; }
-        .hero-img-emoji { font-size: 64px; }
         .hero-badge {
             position: absolute; bottom: 32px; left: -20px;
             background: var(--brown-400); color: var(--cream);
@@ -78,9 +80,9 @@
         .hero-badge-txt { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--brown-100); margin-top: 3px; }
  
         /* ── STRIP ──────────────────────────────────────────────── */
-        .strip { background: var(--brown-700); padding: 16px 0; display: flex; justify-content: center; gap: 56px; flex-wrap: wrap; }
-        .strip-item { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--brown-200); display: flex; align-items: center; gap: 10px; }
-        .strip-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--brown-400); flex-shrink: 0; }
+        .strip { background: var(--brown-700); padding: 16px 0; display: flex; justify-content: center; }
+        .strip-item { width: 75%; max-width: 880px; font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--brown-200); display: flex; align-items: center; justify-content: center; gap: 12px; margin: 0 auto; }
+        .strip-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--brown-400); flex-shrink: 0; }
  
         /* ── SECTIONS ───────────────────────────────────────────── */
         .section { padding: 80px 48px; }
@@ -95,15 +97,15 @@
         .menu-tab { padding: 8px 24px; border: 1px solid var(--brown-200); background: transparent; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-light); cursor: pointer; border-radius: 2px; transition: all .2s; font-family: 'Inter', sans-serif; }
         .menu-tab.active, .menu-tab:hover { background: var(--brown-800); color: var(--cream); border-color: var(--brown-800); }
         .menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-        .menu-card { background: var(--cream); border: 1px solid var(--brown-100); border-radius: 4px; overflow: hidden; transition: transform .25s, box-shadow .25s; }
+        .menu-card { background: var(--cream); border: 1px solid var(--brown-100); border-radius: 4px; overflow: hidden; transition: transform .25s, box-shadow .25s; display: flex; flex-direction: column; }
         .menu-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(44,26,14,.12); }
         .menu-card-img { height: 170px; display: flex; align-items: center; justify-content: center; font-size: 56px; position: relative; overflow: hidden; background: var(--brown-100); }
         .menu-card-img img { width: 100%; height: 100%; object-fit: cover; }
         .menu-card-badge { position: absolute; top: 10px; right: 10px; background: var(--brown-800); color: var(--cream); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 3px 9px; border-radius: 2px; }
-        .menu-card-body { padding: 16px; }
+        .menu-card-body { padding: 16px; display: flex; flex-direction: column; flex: 1; }
         .menu-card-name { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 500; color: var(--brown-900); margin-bottom: 5px; }
-        .menu-card-desc { font-size: 12px; color: var(--text-light); line-height: 1.65; margin-bottom: 14px; }
-        .menu-card-bottom { display: flex; align-items: center; justify-content: space-between; }
+        .menu-card-desc { font-size: 12px; color: var(--text-light); line-height: 1.65; margin-bottom: 20px; flex: 1; }
+        .menu-card-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
         .menu-card-price { font-size: 15px; font-weight: 600; color: var(--brown-600); }
         .menu-card-btn { background: var(--brown-800); color: var(--cream); border: none; padding: 7px 16px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: background .2s; font-family: 'Inter', sans-serif; text-decoration: none; display: inline-block; }
         .menu-card-btn:hover { background: var(--brown-600); }
@@ -112,7 +114,7 @@
         /* ── ABOUT ──────────────────────────────────────────────── */
         .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center; }
         .about-img-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .about-img { border-radius: 4px; overflow: hidden; background: var(--brown-200); display: flex; align-items: center; justify-content: center; font-size: 48px; }
+        .about-img { border-radius: 4px; overflow: hidden; background: var(--brown-200); display: flex; align-items: center; justify-content: center; font-size: 48px; background-size: cover; background-position: center; }
         .about-img:first-child { grid-row: span 2; min-height: 320px; font-size: 72px; }
         .about-img-sm { min-height: 150px; }
         .about-tag { font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--brown-400); margin-bottom: 16px; }
@@ -193,8 +195,7 @@
             <span>Sebuah Cerita</span>
         </h1>
         <p class="hero-desc">
-            Nikmati kopi premium pilihan dengan sentuhan modern.
-            Pesan dari mana saja, ambil kapan saja — langsung dari genggamanmu.
+            Dibuat dengan Passion, Disajikan dengan Cinta.
         </p>
         <div class="hero-btns">
             <a href="#menu" class="btn-primary">Lihat Menu</a>
@@ -203,14 +204,10 @@
     </div>
     <div class="hero-right">
         <div class="hero-img-grid">
-            <div class="hero-img hero-img-1"><span class="hero-img-emoji">☕</span></div>
-            <div class="hero-img hero-img-2"><span class="hero-img-emoji">🫘</span></div>
-            <div class="hero-img hero-img-3"><span class="hero-img-emoji">🍵</span></div>
-            <div class="hero-img hero-img-4"><span class="hero-img-emoji">🧁</span></div>
-        </div>
-        <div class="hero-badge">
-            <div class="hero-badge-num">14+</div>
-            <div class="hero-badge-txt">Pilihan Menu</div>
+            <div class="hero-img hero-img-1" style="background-image: url('{{ asset('images/coffe.webp') }}');"></div>
+            <div class="hero-img hero-img-2" style="background-image: url('{{ asset('images/beans.webp') }}');"></div>
+            <div class="hero-img hero-img-3" style="background-image: url('{{ asset('images/tea.webp') }}');"></div>
+            <div class="hero-img hero-img-4" style="background-image: url('{{ asset('images/pastry.webp') }}');"></div>
         </div>
     </div>
 </section>
@@ -218,9 +215,6 @@
 {{-- ── STRIP ────────────────────────────────────────────────────────── --}}
 <div class="strip">
     <div class="strip-item"><div class="strip-dot"></div>Premium Beans</div>
-    <div class="strip-item"><div class="strip-dot"></div>Pembayaran QRIS</div>
-    <div class="strip-item"><div class="strip-dot"></div>Pesan Online</div>
-    <div class="strip-item"><div class="strip-dot"></div>Pickup di Kasir</div>
 </div>
  
 {{-- ── MENU ─────────────────────────────────────────────────────────── --}}
@@ -244,8 +238,6 @@
             <div class="menu-card-img">
                 @if($menu->gambar)
                     <img src="{{ asset('storage/' . $menu->gambar) }}" alt="{{ $menu->nama_menu }}">
-                @else
-                    {{ $menu->kategori === 'coffee' ? '☕' : '🍵' }}
                 @endif
                 @if($loop->first)
                     <div class="menu-card-badge">Bestseller</div>
@@ -280,9 +272,9 @@
 <section class="section section-alt" id="about">
     <div class="about-grid">
         <div class="about-img-grid">
-            <div class="about-img">☕</div>
-            <div class="about-img about-img-sm">🫘</div>
-            <div class="about-img about-img-sm">🍵</div>
+            <div class="about-img" style="background-image: url('{{ asset('images/susu.webp') }}');"></div>
+            <div class="about-img about-img-sm" style="background-image: url('{{ asset('images/karamel.webp') }}');"></div>
+            <div class="about-img about-img-sm" style="background-image: url('{{ asset('images/kopi.webp') }}');"></div>
         </div>
         <div>
             <div class="about-tag">Tentang Kami</div>
@@ -304,14 +296,14 @@
                     <div class="feat-line"></div>
                     <div>
                         <div class="feat-title">Pembayaran Digital</div>
-                        <div class="feat-desc">QRIS via Midtrans atau bayar langsung di kasir</div>
+                        <div class="feat-desc">Pembayaran lebih mudah</div>
                     </div>
                 </div>
                 <div class="about-feat">
                     <div class="feat-line"></div>
                     <div>
                         <div class="feat-title">Barista Terlatih</div>
-                        <div class="feat-desc">Tim barista berpengalaman yang passionate soal kopi</div>
+                        <div class="feat-desc">Barista berpengalaman yang terlatih dalam menyajikan kopi berkualitas</div>
                     </div>
                 </div>
             </div>
@@ -327,19 +319,19 @@
     <div class="steps-grid">
         <div class="step-card">
             <div class="step-num">01</div>
-            <div class="step-icon">📋</div>
+            <div class="step-icon"></div>
             <div class="step-title">Pilih Menu</div>
             <div class="step-desc">Jelajahi menu coffee dan non-coffee kami. Tambahkan item favorit ke keranjang dengan mudah.</div>
         </div>
         <div class="step-card">
             <div class="step-num">02</div>
-            <div class="step-icon">💳</div>
+            <div class="step-icon"></div>
             <div class="step-title">Pilih Pembayaran</div>
             <div class="step-desc">Bayar via QRIS (Midtrans) langsung di website, atau pilih bayar di kasir saat pickup.</div>
         </div>
         <div class="step-card">
             <div class="step-num">03</div>
-            <div class="step-icon">☕</div>
+            <div class="step-icon"></div>
             <div class="step-title">Ambil & Nikmati</div>
             <div class="step-desc">Pesananmu diproses kasir. Struk dicetak, dan kopi siap kamu nikmati.</div>
         </div>

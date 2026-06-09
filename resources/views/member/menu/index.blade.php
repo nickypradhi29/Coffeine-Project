@@ -194,7 +194,7 @@
             </button>
         </form>
         <a href="{{ route('member.keranjang') }}" class="nav-cart">
-            🛒 Keranjang
+             Keranjang
             @php $jumlahKeranjang = count(session('keranjang', [])); @endphp
             @if($jumlahKeranjang > 0)
                 <span class="cart-count">{{ $jumlahKeranjang }}</span>
@@ -230,8 +230,8 @@
 {{-- FILTER TABS --}}
 <div class="filter-bar">
     <button class="filter-tab active" onclick="filterMenu('semua', this)">Semua</button>
-    <button class="filter-tab" onclick="filterMenu('coffee', this)">☕ Coffee</button>
-    <button class="filter-tab" onclick="filterMenu('non-coffee', this)">🍵 Non-Coffee</button>
+    <button class="filter-tab" onclick="filterMenu('coffee', this)"> Coffee</button>
+    <button class="filter-tab" onclick="filterMenu('non-coffee', this)"> Non-Coffee</button>
 </div>
 
 {{-- MAIN --}}
@@ -240,7 +240,7 @@
     {{-- COFFEE --}}
     <div class="menu-section" id="section-coffee">
         <div class="section-header">
-            <div class="section-title-text">☕ Coffee</div>
+            <div class="section-title-text"> Coffee</div>
             <div class="section-count">{{ $coffeeMenus->count() }} item tersedia</div>
         </div>
 
@@ -253,7 +253,7 @@
                     @if($menu->gambar)
                         <img src="{{ asset('storage/' . $menu->gambar) }}" alt="{{ $menu->nama_menu }}">
                     @else
-                        <div class="card-img-placeholder">☕</div>
+                        <div class="card-img-placeholder"></div>
                     @endif
                     <span class="price-badge">Rp {{ number_format((float)$menu->harga, 0, ',', '.') }}</span>
                     <span class="cat-badge cat-coffee">Coffee</span>
@@ -359,7 +359,7 @@
         </div>
         @else
             <div class="empty">
-                <div class="empty-icon">🍵</div>
+                <div class="empty-icon"></div>
                 <div class="empty-text">Belum ada menu non-coffee tersedia.</div>
             </div>
         @endif

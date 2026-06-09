@@ -113,8 +113,8 @@
                         <label class="form-label">Kategori <span>*</span></label>
                         <select name="kategori" class="form-select" required>
                             <option value="">Pilih kategori</option>
-                            <option value="coffee"     {{ old('kategori') === 'coffee'     ? 'selected' : '' }}>☕ Coffee</option>
-                            <option value="non-coffee" {{ old('kategori') === 'non-coffee' ? 'selected' : '' }}>🍵 Non-Coffee</option>
+                            <option value="coffee"     {{ old('kategori') === 'coffee'     ? 'selected' : '' }}> Coffee</option>
+                            <option value="non-coffee" {{ old('kategori') === 'non-coffee' ? 'selected' : '' }}> Non-Coffee</option>
                         </select>
                     </div>
                     <div class="form-group">

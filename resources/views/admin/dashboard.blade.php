@@ -106,15 +106,15 @@
     {{-- Quick Links --}}
     <div class="quick-links" style="margin-bottom:32px">
         <a href="{{ route('admin.menu.create') }}" class="quick-card">
-            <div class="quick-icon">➕</div>
+            
             <div><div class="quick-title">Tambah Menu</div><div class="quick-sub">Tambahkan item menu baru</div></div>
         </a>
         <a href="{{ route('admin.laporan.index') }}" class="quick-card">
-            <div class="quick-icon">📊</div>
+            
             <div><div class="quick-title">Laporan Penjualan</div><div class="quick-sub">Lihat data transaksi lengkap</div></div>
         </a>
         <a href="{{ route('admin.users.index') }}" class="quick-card">
-            <div class="quick-icon">👥</div>
+            
             <div><div class="quick-title">Kelola Pengguna</div><div class="quick-sub">Atur role kasir & admin</div></div>
         </a>
     </div>
