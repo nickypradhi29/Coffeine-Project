@@ -16,34 +16,27 @@ class PembayaranController extends Controller
 {
     public function __construct()
     {
-        // Setup Midtrans config
         Config::$serverKey    = config('midtrans.server_key');
         Config::$isProduction = config('midtrans.is_production');
         Config::$isSanitized  = true;
         Config::$is3ds        = true;
     }
 
-    /**
-     * Tampilkan halaman pembayaran QRIS
-     */
     public function qris(Pesanan $pesanan)
     {
         abort_if($pesanan->user_id !== Auth::id(), 403);
 
-        // Kalau sudah ada pembayaran pending, pakai yang lama
         $pembayaran = $pesanan->pembayaran;
 
-        if (! $pembayaran || ! $pembayaran->snap_token) {
-            $pembayaran = $this->buatSnapToken($pesanan);
+        if (! $pembayaran || ! $pembayaran->payment_url) {
+            $pembayaran = $this->buatPembayaran($pesanan);
         }
 
-        return view('member.pembayaran.qris', compact('pesanan', 'pembayaran'));
+        // Langsung redirect ke halaman Midtrans
+        return redirect($pembayaran->payment_url);
     }
 
-    /**
-     * Buat Snap Token dari Midtrans
-     */
-    private function buatSnapToken(Pesanan $pesanan): Pembayaran
+    private function buatPembayaran(Pesanan $pesanan): Pembayaran
     {
         $params = [
             'transaction_details' => [
@@ -60,11 +53,11 @@ class PembayaranController extends Controller
                 'quantity' => $d->jumlah,
                 'name'     => substr($d->menu->nama_menu, 0, 50),
             ])->toArray(),
-            'enabled_payments' => ['qris'], // hanya tampilkan QRIS
         ];
 
+        // Buat transaksi dan ambil URL redirect
         $snapToken  = Snap::getSnapToken($params);
-        $snapResult = Snap::getSnapUrl($params);
+        $paymentUrl = "https://app.sandbox.midtrans.com/snap/v2/vtweb/" . $snapToken;
 
         return Pembayaran::updateOrCreate(
             ['pesanan_id' => $pesanan->id],
@@ -72,15 +65,12 @@ class PembayaranController extends Controller
                 'metode'          => 'qris',
                 'payment_gateway' => 'Midtrans',
                 'snap_token'      => $snapToken,
-                'payment_url'     => $snapResult,
+                'payment_url'     => $paymentUrl,
                 'status'          => 'pending',
             ]
         );
     }
 
-    /**
-     * Webhook dari Midtrans (otomatis dipanggil setelah bayar)
-     */
     public function midtransCallback(Request $request)
     {
         try {
@@ -90,7 +80,6 @@ class PembayaranController extends Controller
             $transactionStatus = $notif->transaction_status;
             $fraudStatus       = $notif->fraud_status;
 
-            // Ambil pesanan_id dari order_id (format: COFF-{id}-{timestamp})
             $pesananId = explode('-', $orderId)[1] ?? null;
             $pesanan   = Pesanan::find($pesananId);
 
@@ -111,8 +100,6 @@ class PembayaranController extends Controller
             } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
                 $pembayaran?->update(['status' => 'gagal']);
                 $pesanan->update(['status_pesanan' => 'dibatalkan']);
-            } elseif ($transactionStatus === 'pending') {
-                $pembayaran?->update(['status' => 'pending']);
             }
 
             return response()->json(['message' => 'OK']);

@@ -36,9 +36,9 @@
 
         <div class="form-group">
             <label class="form-label">Nama Lengkap</label>
-            <input type="text" name="nama" class="form-input"
-                value="{{ old('nama') }}" placeholder="Nama lengkap kamu" required autofocus>
-            @error('nama')
+            <input type="text" name="name" class="form-input"
+                value="{{ old('name') }}" placeholder="Nama lengkap kamu" required autofocus>
+            @error('name')
                 <div class="error-msg">{{ $message }}</div>
             @enderror
         </div>
