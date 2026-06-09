@@ -98,3 +98,8 @@ Route::middleware(['auth', 'role:admin'])
         Route::post('/menu',                  [AdminMenuController::class, 'store'])->name('menu.store');
         Route::delete('/menu/{menu}',         [AdminMenuController::class, 'destroy'])->name('menu.destroy');
     });
+
+Route::get(
+    '/admin/laporan/export',
+    [LaporanController::class, 'exportExcel']
+)->name('admin.laporan.export');
