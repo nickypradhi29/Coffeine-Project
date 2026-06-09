@@ -1,43 +1,51 @@
 <?php
- 
+
 namespace App\Http\Controllers\Member;
- 
+
 use App\Http\Controllers\Controller;
 use App\Models\Pembayaran;
 use App\Models\Pesanan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
- 
+use Midtrans\Config;
+use Midtrans\Snap;
+use Midtrans\Notification;
+
 class PembayaranController extends Controller
 {
+    public function __construct()
+    {
+        // Setup Midtrans config
+        Config::$serverKey    = config('midtrans.server_key');
+        Config::$isProduction = config('midtrans.is_production');
+        Config::$isSanitized  = true;
+        Config::$is3ds        = true;
+    }
+
     /**
-     * Tampilkan halaman pembayaran QRIS (Midtrans)
+     * Tampilkan halaman pembayaran QRIS
      */
     public function qris(Pesanan $pesanan)
     {
         abort_if($pesanan->user_id !== Auth::id(), 403);
- 
-        // Cek / buat record pembayaran
-        $pembayaran = $pesanan->pembayaran ?? $this->buatPembayaranMidtrans($pesanan);
- 
+
+        // Kalau sudah ada pembayaran pending, pakai yang lama
+        $pembayaran = $pesanan->pembayaran;
+
+        if (! $pembayaran || ! $pembayaran->snap_token) {
+            $pembayaran = $this->buatSnapToken($pesanan);
+        }
+
         return view('member.pembayaran.qris', compact('pesanan', 'pembayaran'));
     }
- 
+
     /**
-     * Buat transaksi Midtrans dan simpan token/URL
+     * Buat Snap Token dari Midtrans
      */
-    private function buatPembayaranMidtrans(Pesanan $pesanan): Pembayaran
+    private function buatSnapToken(Pesanan $pesanan): Pembayaran
     {
-        $serverKey = config('midtrans.server_key');
-        $isProduction = config('midtrans.is_production');
- 
-        $baseUrl = $isProduction
-            ? 'https://app.midtrans.com/snap/v1/transactions'
-            : 'https://app.sandbox.midtrans.com/snap/v1/transactions';
- 
-        $payload = [
+        $params = [
             'transaction_details' => [
                 'order_id'     => 'COFF-' . $pesanan->id . '-' . time(),
                 'gross_amount' => (int) $pesanan->total_harga,
@@ -46,69 +54,72 @@ class PembayaranController extends Controller
                 'first_name' => $pesanan->user->nama,
                 'email'      => $pesanan->user->email,
             ],
-            'item_details' => $pesanan->detailPesanans->map(fn ($d) => [
-                'id'       => $d->menu_id,
+            'item_details' => $pesanan->detailPesanans->map(fn($d) => [
+                'id'       => (string) $d->menu_id,
                 'price'    => (int) $d->harga,
                 'quantity' => $d->jumlah,
-                'name'     => $d->menu->nama_menu,
+                'name'     => substr($d->menu->nama_menu, 0, 50),
             ])->toArray(),
-            'payment_type' => 'qris',   // hanya tampilkan QRIS
+            'enabled_payments' => ['qris'], // hanya tampilkan QRIS
         ];
- 
-        $response = Http::withBasicAuth($serverKey, '')
-            ->post($baseUrl, $payload);
- 
-        $body = $response->json();
- 
-        return Pembayaran::create([
-            'pesanan_id'      => $pesanan->id,
-            'metode'          => 'qris',
-            'payment_gateway' => 'Midtrans',
-            'payment_ref'     => $body['token'] ?? null,
-            'snap_token'      => $body['token'] ?? null,
-            'payment_url'     => $body['redirect_url'] ?? null,
-            'status'          => 'pending',
-        ]);
+
+        $snapToken  = Snap::getSnapToken($params);
+        $snapResult = Snap::getSnapUrl($params);
+
+        return Pembayaran::updateOrCreate(
+            ['pesanan_id' => $pesanan->id],
+            [
+                'metode'          => 'qris',
+                'payment_gateway' => 'Midtrans',
+                'snap_token'      => $snapToken,
+                'payment_url'     => $snapResult,
+                'status'          => 'pending',
+            ]
+        );
     }
- 
+
     /**
-     * Webhook / Notification dari Midtrans
-     * Route: POST /pembayaran/midtrans-callback (tidak perlu auth)
+     * Webhook dari Midtrans (otomatis dipanggil setelah bayar)
      */
     public function midtransCallback(Request $request)
     {
-        $notif = $request->all();
- 
-        // Verifikasi signature
-        $signatureKey = hash('sha512',
-            $notif['order_id'] .
-            $notif['status_code'] .
-            $notif['gross_amount'] .
-            config('midtrans.server_key')
-        );
- 
-        if ($signatureKey !== $notif['signature_key']) {
-            Log::warning('Midtrans: Signature tidak valid', $notif);
-            return response()->json(['message' => 'Signature tidak valid'], 403);
+        try {
+            $notif = new Notification();
+
+            $orderId           = $notif->order_id;
+            $transactionStatus = $notif->transaction_status;
+            $fraudStatus       = $notif->fraud_status;
+
+            // Ambil pesanan_id dari order_id (format: COFF-{id}-{timestamp})
+            $pesananId = explode('-', $orderId)[1] ?? null;
+            $pesanan   = Pesanan::find($pesananId);
+
+            if (! $pesanan) {
+                return response()->json(['message' => 'Pesanan tidak ditemukan'], 404);
+            }
+
+            $pembayaran = $pesanan->pembayaran;
+
+            if ($transactionStatus === 'capture') {
+                if ($fraudStatus === 'accept') {
+                    $pembayaran?->markAsBerhasil();
+                    $pesanan->update(['status_pesanan' => 'diproses']);
+                }
+            } elseif ($transactionStatus === 'settlement') {
+                $pembayaran?->markAsBerhasil();
+                $pesanan->update(['status_pesanan' => 'diproses']);
+            } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
+                $pembayaran?->update(['status' => 'gagal']);
+                $pesanan->update(['status_pesanan' => 'dibatalkan']);
+            } elseif ($transactionStatus === 'pending') {
+                $pembayaran?->update(['status' => 'pending']);
+            }
+
+            return response()->json(['message' => 'OK']);
+
+        } catch (\Exception $e) {
+            Log::error('Midtrans callback error: ' . $e->getMessage());
+            return response()->json(['message' => 'Error'], 500);
         }
- 
-        // Ambil pesanan dari order_id (format: COFF-{pesanan_id}-{timestamp})
-        $pesananId = explode('-', $notif['order_id'])[1] ?? null;
-        $pesanan   = Pesanan::find($pesananId);
- 
-        if (! $pesanan) {
-            return response()->json(['message' => 'Pesanan tidak ditemukan'], 404);
-        }
- 
-        $pembayaran = $pesanan->pembayaran;
- 
-        if (in_array($notif['transaction_status'], ['capture', 'settlement'])) {
-            $pembayaran?->markAsBerhasil();
-            $pesanan->update(['status_pesanan' => 'diproses']);
-        } elseif (in_array($notif['transaction_status'], ['cancel', 'deny', 'expire'])) {
-            $pembayaran?->update(['status' => 'gagal']);
-        }
- 
-        return response()->json(['message' => 'OK']);
     }
 }

@@ -115,23 +115,28 @@
     <p class="footer-copy">&copy; {{ date('Y') }} Coffeineé — Nikmati kopi terbaikmu.</p>
 </div>
 
+{{-- Snap.js Midtrans --}}
 @if($pembayaran->snap_token)
-<script src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
-    data-client-key="{{ config('midtrans.client_key') }}"></script>
+<script
+    src="{{ config('midtrans.is_production')
+        ? 'https://app.midtrans.com/snap/snap.js'
+        : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
+    data-client-key="{{ config('midtrans.client_key') }}">
+</script>
 <script>
     document.getElementById('snap-btn')?.addEventListener('click', function () {
         snap.pay('{{ $pembayaran->snap_token }}', {
-            onSuccess: function (result) {
+            onSuccess: function(result) {
                 window.location.href = '{{ route('member.pesanan.show', $pesanan) }}';
             },
-            onPending: function (result) {
-                alert('Pembayaran pending. Cek kembali nanti.');
+            onPending: function(result) {
+                window.location.href = '{{ route('member.pesanan.show', $pesanan) }}';
             },
-            onError: function (result) {
+            onError: function(result) {
                 alert('Pembayaran gagal. Silakan coba lagi.');
             },
-            onClose: function () {
-                // user menutup popup tanpa bayar
+            onClose: function() {
+                console.log('Popup ditutup tanpa bayar');
             }
         });
     });

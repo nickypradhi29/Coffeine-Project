@@ -17,6 +17,7 @@ use App\Http\Controllers\Kasir\StrukController;
 use App\Http\Controllers\Admin\MenuController       as AdminMenuController;
 use App\Http\Controllers\Admin\LaporanController;
 
+
 // ===========================================================================
 // BREEZE DEFAULT ROUTES (jangan hapus)
 // ===========================================================================
