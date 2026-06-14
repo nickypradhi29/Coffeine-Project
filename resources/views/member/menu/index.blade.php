@@ -58,7 +58,6 @@
             background: var(--brown-900); padding: 48px;
             display: flex; align-items: flex-end; justify-content: space-between;
         }
-        .page-header-left {}
         .page-eyebrow { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--brown-400); margin-bottom: 8px; }
         .page-title { font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 700; color: var(--cream); }
         .page-sub { font-size: 14px; color: var(--brown-300); margin-top: 8px; }
@@ -263,6 +262,85 @@
                 <div class="card-body">
                     <div class="card-name">{{ $menu->nama_menu }}</div>
                     <div class="card-desc">{{ $menu->deskripsi ?? 'Minuman kopi pilihan berkualitas tinggi.' }}</div>
+                    <div class="card-rating" style="margin-bottom:10px; font-size:13px; color:#8B5A2B;">
+                        @php
+                            $avg = $menu->ratings_avg_rating ?? 0;
+                            $count = $menu->ratings_count ?? 0;
+
+                            $sudahBeli = auth()->check()
+                                ? \App\Models\DetailPesanan::whereHas('pesanan', function ($q) {
+                                    $q->where('user_id', auth()->id())
+                                      ->where('status_pembayaran', 'sudah_bayar');
+                                })
+                                ->where('menu_id', $menu->id)
+                                ->exists()
+                                : false;
+                            @endphp
+
+                            {{-- Rata-rata rating --}}
+                            @for ($i = 1; $i <= 5; $i++)
+                                @if ($i <= round($avg))
+                                    ⭐
+                                @else
+                                    ☆
+                                @endif
+                            @endfor
+
+                            <span style="margin-left:6px;">
+                                ({{ number_format($avg, 1) }}) · {{ $count }} review
+                            </span>
+
+                            {{-- Form Rating --}}
+                            @if(auth()->check() && auth()->user()->role === 'member')
+
+                                <div style="margin-top:10px;">
+
+                                    @if($sudahBeli)
+
+                                       <form action="{{ route('rating.store') }}" method="POST">
+
+                                           @csrf
+
+                                           <input
+                                               type="hidden"
+                                               name="menu_id"
+                                                value="{{ $menu->id }}"
+                                            >
+
+                                            <div style="display:flex; gap:5px;">
+
+                                                @for($i = 1; $i <= 5; $i++)
+
+                                                    <button
+                                                        type="submit"
+                                                        name="rating"
+                                                        value="{{ $i }}"
+                                                        style="
+                                                            border:none;
+                                                            background:none;
+                                                            cursor:pointer;
+                                                            font-size:18px;
+                                 
+                                                        "
+                                                    >
+                                                        ⭐
+                                                    </button>
+
+                                                @endfor
+
+                                            </div>
+
+                                       </form>
+
+                                    @else
+
+                                        <small style="color:#999;">
+                                            Rating tersedia setelah pembelian
+                                        </small>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
 
                     {{-- Stok --}}
                     <div class="card-stok">
@@ -282,7 +360,8 @@
                         <div class="qty-wrap">
                             <button type="button" class="qty-btn" onclick="decrementQty(this)">−</button>
                             <input type="number" name="jumlah" value="1" min="1" max="{{ $menu->stok }}" class="qty-input" readonly>
-                            <button type="button" class="qty-btn" onclick="incrementQty(this, {{ $menu->stok }})">+</button>
+                            <button type="button" class="qty-btn" data-stok="{{ $menu->stok }}"
+    onclick="incrementQty(this)">+</button>
                         </div>
                         <button type="submit" class="add-btn">+ Keranjang</button>
                     </form>
@@ -327,6 +406,24 @@
                 <div class="card-body">
                     <div class="card-name">{{ $menu->nama_menu }}</div>
                     <div class="card-desc">{{ $menu->deskripsi ?? 'Minuman non-coffee pilihan yang menyegarkan.' }}</div>
+                    <div class="card-rating" style="margin-bottom:10px; font-size:13px; color:#8B5A2B;">
+                        @php
+                            $avg = $menu->ratings_avg_rating ?? 0;
+                            $count = $menu->ratings_count ?? 0;
+                        @endphp
+
+                        @for ($i = 1; $i <= 5; $i++)
+                            @if ($i <= round($avg))
+                               ⭐
+                            @else
+                                ☆
+                            @endif
+                        @endfor
+
+            <span style="margin-left:6px;">
+                ({{ number_format($avg, 1) }}) · {{ $count }} review
+            </span>
+        </div>
 
                     {{-- Stok --}}
                     <div class="card-stok">
@@ -346,7 +443,8 @@
                         <div class="qty-wrap">
                             <button type="button" class="qty-btn" onclick="decrementQty(this)">−</button>
                             <input type="number" name="jumlah" value="1" min="1" max="{{ $menu->stok }}" class="qty-input" readonly>
-                            <button type="button" class="qty-btn" onclick="incrementQty(this, {{ $menu->stok }})">+</button>
+                            <button type="button" class="qty-btn" data-stok="{{ $menu->stok }}"
+    onclick="incrementQty(this)">+</button>
                         </div>
                         <button type="submit" class="add-btn">+ Keranjang</button>
                     </form>

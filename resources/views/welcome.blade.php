@@ -245,7 +245,31 @@
             </div>
             <div class="menu-card-body">
                 <div class="menu-card-name">{{ $menu->nama_menu }}</div>
+
+                {{-- Rating --}}
+                <div style="font-size:13px;color:#8B5A2B;margin-top:5px;margin-bottom:10px;">
+
+                    @php
+                        $avg = $menu->ratings_avg_rating ?? 0;
+                        $count = $menu->ratings_count ?? 0;
+                    @endphp
+
+                    @for ($i = 1; $i <= 5; $i++)
+                        @if ($i <= round($avg))
+                            ⭐
+                        @else
+                            ☆
+                        @endif
+                    @endfor
+
+                    <span>
+                        ({{ number_format($avg, 1) }}) · {{ $count }} review
+                    </span>
+
+                </div>
+
                 <div class="menu-card-desc">{{ $menu->deskripsi }}</div>
+
                 <div class="menu-card-bottom">
                     <span class="menu-card-price">Rp {{ number_format((float)$menu->harga, 0, ',', '.') }}</span>
                     @auth
