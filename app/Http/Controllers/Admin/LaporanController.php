@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Pesanan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Exports\LaporanPenjualanExport;
+use Maatwebsite\Excel\Facades\Excel;
  
 class LaporanController extends Controller
 {
@@ -21,10 +24,37 @@ class LaporanController extends Controller
  
         $totalPendapatan = $pesanans->sum('total_harga');
         $totalTransaksi  = $pesanans->count();
- 
+
+        $grafikPenjualan = Pesanan::selectRaw(
+            'DATE(created_at) as tanggal,
+             SUM(total_harga) as total'
+        )
+        ->whereBetween(
+            'created_at',
+            [$dari . ' 00:00:00', $sampai . ' 23:59:59']
+        )
+        ->where('status_pembayaran', 'sudah_bayar')
+        ->groupBy('tanggal')
+        ->orderBy('tanggal')
+        ->get();
+
+        $rataRataTransaksi =
+        $totalTransaksi > 0
+        ? $totalPendapatan / $totalTransaksi
+        : 0;
+
+
         return view('admin.laporan.index', compact(
-            'pesanans', 'totalPendapatan', 'totalTransaksi', 'dari', 'sampai'
+            'pesanans', 'totalPendapatan', 'totalTransaksi', 'dari', 'sampai', 'grafikPenjualan', 'rataRataTransaksi'
         ));
+    }
+
+    public function exportExcel()
+    {
+    return Excel::download(
+        new LaporanPenjualanExport(),
+        'laporan_penjualan.xlsx'
+    );
     }
  
     public function dashboard()
@@ -65,4 +95,6 @@ class LaporanController extends Controller
  
         return back()->with('success', "Role {$user->nama} berhasil diubah menjadi {$request->role}.");
     }
+
+    
 }
