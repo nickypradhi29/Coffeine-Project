@@ -8,8 +8,11 @@ class WelcomeController extends Controller
 {
     public function index()
     {
-        // Ambil 8 menu tersedia untuk ditampilkan di landing page
-        $menus = Menu::tersedia()->limit(8)->get();
+        $menus = Menu::tersedia()
+            ->withAvg('ratings', 'rating')
+            ->withCount('ratings')
+            ->limit(8)
+            ->get();
 
         return view('welcome', compact('menus'));
     }
