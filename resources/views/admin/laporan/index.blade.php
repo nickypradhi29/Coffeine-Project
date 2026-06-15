@@ -34,6 +34,22 @@
 
         /* Stats */
         .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+        .chart-card{
+            background:var(--cream);
+            border:1px solid var(--brown-100);
+            border-radius:6px;
+            padding:24px;
+            margin-bottom:24px;
+        }
+        
+        .chart-title{
+            font-size:13px;
+            font-weight:600;
+            margin-bottom:16px;
+            color:var(--brown-800);
+            letter-spacing:1px;
+            text-transform:uppercase;
+        }
         .stat-card{background:var(--cream);border:1px solid var(--brown-100);border-radius:6px;padding:20px 24px;}
         .stat-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-light);margin-bottom:6px;}
         .stat-val{font-family:'Playfair Display',serif;font-size:26px;font-weight:600;color:var(--brown-800);}
@@ -91,7 +107,15 @@
             <label class="filter-label">Sampai Tanggal</label>
             <input type="date" name="sampai" value="{{ $sampai }}" class="filter-input">
         </div>
-        <button type="submit" class="filter-btn">Terapkan Filter</button>
+        <button type="submit" class="filter-btn">
+            Terapkan Filter
+        </button>
+        <a
+            href="{{ route('admin.laporan.export') }}"
+            class="filter-btn"
+            style="text-decoration:none;display:inline-flex;align-items:center;">
+            Export Excel
+        </a>
     </form>
 
     {{-- Stats --}}
@@ -113,6 +137,13 @@
             </div>
             <div class="stat-sub">Nilai rata-rata pesanan</div>
         </div>
+    </div>
+    <div class="chart-card">
+        <div class="chart-title">
+            Grafik Penjualan
+        </div>
+        
+        <canvas id="salesChart"></canvas>
     </div>
 
     {{-- Table --}}
@@ -166,5 +197,28 @@
 <div class="page-footer">
     <p class="footer-copy">&copy; {{ date('Y') }} Coffeineé — Panel Admin</p>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+const chartData = JSON.parse('{!! json_encode($grafikPenjualan) !!}');
+
+new Chart(
+    document.getElementById('salesChart'),
+    {
+        type: 'line',
+        data: {
+            labels: chartData.map(item => item.tanggal),
+            datasets: [{
+                label: 'Pendapatan',
+                data: chartData.map(item => item.total),
+                tension: 0.4
+            }]
+        }
+    }
+);
+
+</script>
+
 </body>
 </html>
