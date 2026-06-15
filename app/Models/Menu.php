@@ -44,6 +44,11 @@ class Menu extends Model
     {
         return $this->hasMany(DetailPesanan::class);
     }
+
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
  
     // ─── Accessors ─────────────────────────────────────────────────
     public function getHargaFormatAttribute(): string
@@ -57,4 +62,14 @@ class Menu extends Model
             ? asset('storage/' . $this->gambar)
             : asset('images/menu-default.png');
     }
+    public function getAverageRatingAttribute()
+    {
+    return round($this->ratings()->avg('rating') ?? 0, 1);
+    }
+    public function getRatingsCountAttribute()
+    {
+    return $this->ratings()->count();
+    }
+
+
 }

@@ -46,14 +46,17 @@ class User extends Authenticatable
         return $this->role === 'member';
     }
  
-    // ─── Relationships ─────────────────────────────────────────────
+   // ─── Relationships ─────────────────────────────────────────────
     public function pesanans()
     {
         return $this->hasMany(Pesanan::class);
     }
- 
     public function struks()
     {
         return $this->hasMany(Struk::class, 'kasir_id');
+    }
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
     }
 }

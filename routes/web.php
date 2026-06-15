@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RatingController;
 
 // ─── Member Controllers ────────────────────────────────────────────────────
 use App\Http\Controllers\Member\MenuController      as MemberMenuController;
@@ -65,6 +66,10 @@ Route::middleware(['auth', 'role:member,kasir,admin'])
         Route::get('/riwayat',                       [MemberPesananController::class, 'riwayat'])->name('riwayat');
         Route::get('/pembayaran/qris/{pesanan}',     [PembayaranController::class, 'qris'])->name('pembayaran.qris');
     });
+
+Route::middleware(['auth', 'role:member'])
+    ->post('/rating', [RatingController::class, 'store'])
+    ->name('rating.store');
 
 // ===========================================================================
 // KASIR ROUTES
