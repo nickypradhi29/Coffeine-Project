@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
  
 class LoginController extends Controller
 {
@@ -22,9 +23,8 @@ class LoginController extends Controller
  
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
- 
-            return $this->redirectByRole(Auth::user()->role);
-        }
+            return $this->redirectByRole(Auth::user());
+            }
  
         return back()->withErrors([
             'email' => 'Email atau password salah.',
@@ -40,12 +40,16 @@ class LoginController extends Controller
         return redirect()->route('login');
     }
  
-    private function redirectByRole(string $role)
+    private function redirectByRole(User $user)
     {
-        return match ($role) {
-            'admin'  => redirect()->route('admin.dashboard'),
-            'kasir'  => redirect()->route('kasir.dashboard'),
-            default  => redirect()->route('member.menu'),
-        };
+        if ($user->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+            }
+
+        if ($user->isKasir()) {
+            return redirect()->route('kasir.dashboard');
+            }
+
+            return redirect()->route('member.menu');
     }
 }

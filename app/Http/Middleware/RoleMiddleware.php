@@ -1,24 +1,25 @@
 <?php
- 
+
 namespace App\Http\Middleware;
- 
+
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
- 
+
 class RoleMiddleware
 {
-    /**
-     * Izinkan akses hanya untuk role yang disebutkan.
-     * Contoh pemakaian di route: middleware('role:admin,kasir')
-     */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        if (! $request->user() || ! in_array($request->user()->role, $roles)) {
+        if (! $request->user()) {
             abort(403, 'Akses ditolak.');
         }
- 
-        return $next($request);
+
+        foreach ($roles as $role) {
+            if ($request->user()->hasRole($role)) {
+                return $next($request);
+            }
+        }
+
+        abort(403, 'Akses ditolak.');
     }
 }
- 

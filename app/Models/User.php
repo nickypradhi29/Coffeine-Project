@@ -33,18 +33,18 @@ class User extends Authenticatable
  
     // ─── Role Helpers ──────────────────────────────────────────────
     public function isAdmin(): bool
-    {
-        return $this->role === 'admin';
+   {
+        return $this->hasRole('admin');
     }
- 
+
     public function isKasir(): bool
     {
-        return $this->role === 'kasir';
+        return $this->hasRole('kasir');
     }
- 
+
     public function isMember(): bool
     {
-        return $this->role === 'member';
+        return $this->hasRole('member');
     }
  
     // ─── Relationships ─────────────────────────────────────────────

@@ -32,6 +32,8 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
             'role'     => 'member',
         ]);
+
+        $this->call(RoleSeeder::class);
  
         // ─── Menu Coffee ────────────────────────────────────────────────────
         $coffeeMenus = [

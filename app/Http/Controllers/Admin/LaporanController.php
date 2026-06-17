@@ -91,7 +91,10 @@ class LaporanController extends Controller
             'role' => 'required|in:member,kasir,admin',
         ]);
  
-        $user->update(['role' => $request->role]);
+        $user->update([
+            'role' => $request->role]);
+            
+        $user->syncRoles([$request->role]);
  
         return back()->with('success', "Role {$user->nama} berhasil diubah menjadi {$request->role}.");
     }
